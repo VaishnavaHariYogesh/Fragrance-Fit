@@ -30,15 +30,6 @@ def get_valid_choice(label, field):
             return value
         print(f"Please choose one of these options: {', '.join(options)}")
 
-input_temperature = get_current_temperature()
-
-current_temp_category = temperature(input_temperature) 
-
-occasion = get_valid_choice("the occasion", "occasions")
-season = get_valid_choice("the season", "seasons")
-vibe = get_valid_choice("the vibe", "vibes")
-time_of_day = get_valid_choice("the time of day", "times")
-
 def score_fragrance(fragrances, temp_category, occasion, season, vibe, time_of_day):
     """Return each fragrance's name, match score, and matched preferences."""
     scores = []
@@ -63,25 +54,72 @@ def score_fragrance(fragrances, temp_category, occasion, season, vibe, time_of_d
         scores.append((score, matches))
     return [(fragrance['name'], score, matches) for fragrance, (score, matches) in zip(fragrances, scores)]
 
+def get_top_picks(temp_category, occasion, season, vibe, time_of_day):
+    scored = score_fragrance(
+        fragrances,
+        temp_category,
+        occasion,
+        season,
+        vibe,
+        time_of_day
+    )
+
+    if not scored:
+        return []
+    highest_score = max(score for name, score, matches in scored)
+
+    if highest_score == 0:
+        return []
+
+    top_picks = []
+    for name, score, matches in scored:
+        if score == highest_score:
+            top_picks.append((name, score, matches))
+
+    return top_picks
+
+def main():
+    input_temperature = get_current_temperature()
+
+    current_temp_category = temperature(input_temperature) 
+
+    occasion = get_valid_choice("the occasion", "occasions")
+    season = get_valid_choice("the season", "seasons")
+    vibe = get_valid_choice("the vibe", "vibes")
+    time_of_day = get_valid_choice("the time of day", "times")
+
+    top_picks = get_top_picks(current_temp_category, occasion, season, vibe, time_of_day)
+    if not top_picks:
+        print("There are no suitable fragrances for the given conditions.")
+    else:
+        print("Top picks with matching criteria:")
+        for name, score, matches in top_picks:
+            print(f"{name}: {', '.join(matches)}")
+
+
+
+if __name__ == "__main__":
+    main()
+
+
+"""
 scored_fragrances = score_fragrance(fragrances, current_temp_category, occasion, season, vibe, time_of_day)
-sorted_fragrances = sorted(scored_fragrances, key=lambda x: x[1], reverse=True)
+    sorted_fragrances = sorted(scored_fragrances, key=lambda x: x[1], reverse=True)
 
+    top_pick_names = [sorted_fragrances[0][0]]
+    top_pick_score = sorted_fragrances[0][1]
+    top_pick_matches = [sorted_fragrances[0][2]]
 
+    if top_pick_score == 0:
+        print("There are no suitable fragrances for the given conditions.")
+    else:
+        for x in sorted_fragrances:
+            if x[1] == top_pick_score:
+                if x[0] not in top_pick_names:
+                    top_pick_names.append(x[0])
+                    top_pick_matches.append(x[2])
 
-top_pick_names = [sorted_fragrances[0][0]]
-top_pick_score = sorted_fragrances[0][1]
-top_pick_matches = [sorted_fragrances[0][2]]
-
-if top_pick_score == 0:
-    print("There are no suitable fragrances for the given conditions.")
-else:
-    for x in sorted_fragrances:
-        if x[1] == top_pick_score:
-            if x[0] not in top_pick_names:
-                top_pick_names.append(x[0])
-                top_pick_matches.append(x[2])
-
-
-    print("Top picks with matching criteria:")
-    for name, matches in zip(top_pick_names, top_pick_matches):
-        print(f"{name}: {', '.join(matches)}")
+        print("Top picks with matching criteria:")
+        for name, matches in zip(top_pick_names, top_pick_matches):
+            print(f"{name}: {', '.join(matches)}")
+"""
